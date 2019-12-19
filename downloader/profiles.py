@@ -20,6 +20,21 @@ class FacebookProfile:
                current_city: Optional[str] = None,
                profile_photo_url: Optional[str] = None,
                cover_photo_url: Optional[str] = None):
+    """Initializes a facebook profile.
+
+    Args:
+      id: Facebook profile unique id.
+      database_path: Path that the database that contains the profile will be
+        saved at. This is required in order to know where to download photos.
+      first_name: First name from facebook title.
+      last_name: Last name from facebook title.
+        The last name is defined as the last word in the full facebook name
+        while first name contains all other words.
+      hometown: Profile's place of birth.
+      current_city: Profile's current residence city.
+      profile_photo_url: URL of the profile photo.
+      cover_photo_url: URL of the profile's cover photo.
+    """
     # Required information
     self.id = id
     self.database_path = database_path
@@ -35,18 +50,22 @@ class FacebookProfile:
     # Photos
     self.profile_photo_url = profile_photo_url
     self.cover_photo_url = cover_photo_url
+    # List of `photos.FacebookPhoto` objects.
     self.photos = []
 
   @property
   def first_name(self) -> str:
+    """Returns the first name of the profile."""
     return self._first_name
 
   @property
   def last_name(self) -> str:
+    """Returns the last name of the profile."""
     return self._last_name
 
   @property
   def full_name(self) -> str:
+    """Returns the full name by joining first and last."""
     first, last = self.first_name, self.last_name
     if first is None:
       return last
@@ -66,6 +85,11 @@ class FacebookProfile:
     print("Current city:", self.current_city)
 
   def to_dict(self) -> Dict[str, Any]:
+    """Returns the profile parameters in a dictionary.
+
+    This is used to create the `profiles.pkl` DataFrame that works as our
+    database.
+    """
     param_keys = set(inspect.signature(self.__init__).parameters.keys())
     param_dict = {k: getattr(self, k) for k in param_keys}
 
@@ -78,6 +102,7 @@ class FacebookProfile:
 
 
 class ScrapableFacebookProfile(FacebookProfile):
+  """Profile data structure for scraping."""
 
   def scrape(self, session: facebook.FacebookSession, sleep_time: int = 1):
     # Get profile page

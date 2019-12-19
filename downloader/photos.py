@@ -28,14 +28,17 @@ class FacebookPhoto:
 
   @property
   def previous_url(self) -> str:
+    """URL of the previous photo in the photo reel."""
     return self._previous
 
   @property
   def next_url(self) -> str:
+    """URL of the next photo in the photo reel."""
     return self._next
 
   @property
   def neighbor_urls(self) -> Tuple[str, str]:
+    """Tuple of previous and next URLs."""
     return (self._previous, self._next)
 
   @property
@@ -45,6 +48,7 @@ class FacebookPhoto:
 
   @property
   def is_downloaded(self) -> bool:
+    """True if the photo is downloaded locally, else False."""
     return self.filename in set(os.listdir(self.folder_path))
 
   def describe(self):
@@ -64,8 +68,10 @@ class FacebookPhoto:
 
 
 class ScrapableFacebookPhoto(FacebookPhoto):
+  """Photo data structure for scraping and downloading."""
 
   def download(self, session: facebook.FacebookSession, sleep_time: int = 1):
+    """Downloads the large version of the photo locally on disk."""
     if self.is_downloaded:
       raise NameError("A photo with id {} already exists in {}.".format(
           self.id, self.folder_path))
@@ -103,6 +109,7 @@ class ScrapableFacebookPhoto(FacebookPhoto):
     return str(urls[0]).replace("amp;", "")
 
   def set_previous_and_next_photos(self, soup: bs4.BeautifulSoup):
+    """Sets the URLs of previous and next photos on the reel."""
     hrefs = soup.find_all("a", href=True)
     photo_hrefs = [x["href"] for x in hrefs if "/photo" in x["href"]]
     if len(photo_hrefs) < 2:
