@@ -49,3 +49,8 @@ You can also set the following flags:
 * `--start` and `--end` can be used to index the loaded friend list from `FILE` if we don't want to scrape all people it contains (for example when resuming an old scraping session).
 
 It is common to use `sleep` when sending HTTP requests to avoid overloading the server. Note that even if you use larger `sleep` times, your facebook profile will get blocked after scraping many profiles. Nevertheless, be polite and :sleeping: sufficiently long! :wink:
+
+
+## Acknowledgement
+
+The code uses the mobile version of the Facebook website as this was the only one that I managed to make logging in to work. I used the [gist](https://gist.github.com/UndergroundLabs/fad38205068ffb904685) by [UndergroundLabs](https://gist.github.com/UndergroundLabs) for this.
