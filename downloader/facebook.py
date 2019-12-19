@@ -1,10 +1,11 @@
-"""Logged in facebook session."""
+"""Logged-in facebook session."""
 import time
 import requests
 from typing import Optional
 
 
 class FacebookSession:
+  """Requests logged-in facebook session."""
 
   def __init__(self, session: Optional[requests.session] = None,
                base_url="https://m.facebook.com"):
@@ -15,6 +16,7 @@ class FacebookSession:
       self.session = session
 
   def login(self, email: str, password: str):
+    """Login to facebook using an email and password."""
     self.session.headers.update(
         {'User-Agent': 'Mozilla/5.0 (X11; Linux i686; rv:39.0) Gecko/20100101 Firefox/39.0'})
 
@@ -26,6 +28,7 @@ class FacebookSession:
                       allow_redirects=False)
 
   def _get(self, url, **kwargs):
+    """Implements `get` and `get_large_photo`."""
     attempts = kwargs.pop("attempts") if "attempts" in kwargs else 5
     retry_time = kwargs.pop("retry_time") if "retry_time" in kwargs else 5
 
@@ -43,9 +46,23 @@ class FacebookSession:
     return page
 
   def get(self, link, attempts: int = 5, retry_time: int = 5):
+    """Requests a facebook page.
+
+    Args:
+      link: URL of the page to send the request for.
+      attempts: Number of attempts to get the page.
+      retry_time: Awaiting time between attempts.
+
+    Returns:
+      The HTTP response to our request.
+    """
     url = "/".join([self.base_url, link])
     return self._get(url, attempts=attempts, retry_time=retry_time)
 
   def get_large_photo(self, url, attempts: int = 5, retry_time: int = 5):
+    """Requests a large photo page.
+
+    See `get` for more details.
+    """
     return self._get(url, attempts=attempts, retry_time=retry_time,
                      stream=True)
