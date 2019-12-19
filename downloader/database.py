@@ -15,16 +15,13 @@ class Database:
 
   def __init__(self,
                path: str,
-               facebook_session: Optional[facebook.FacebookSession] = None,
-               max_photos: int = 5,
-               sleep_time: int = 1,
                previous_data: Optional[pd.DataFrame] = None):
     self.path = path
     self.new_data = []
 
-    self.fb_session = facebook_session
-    self.sleep_time = sleep_time
-    self.max_photos = max_photos
+    self.fb_session = None
+    self.sleep_time = 1
+    self.max_photos = 5
 
     if previous_data is None:
       self._existing_ids = set()
@@ -64,18 +61,32 @@ class Database:
     database.check()
     return database
 
+  def set_session(self,
+                  facebook_session: facebook.FacebookSession,
+                  max_photos: int = 5,
+                  sleep_time: int = 1):
+    self.fb_session = facebook_session
+    self.sleep_time = sleep_time
+    self.max_photos = max_photos
+
   def add(self, profile_id: str):
     if profile_id in self.existing_ids:
       print("\nSkipping {} because it exists in database.".format(profile_id))
-    else:
-      profile = profiles.ScrapableFacebookProfile(profile_id, self.path)
-      if os.path.exists(profile.path):
-        raise FileExistsError("Found folder for {} while this ID does not "
+      return
+
+    profile = profiles.ScrapableFacebookProfile(profile_id, self.path)
+    if os.path.exists(profile.path):
+      raise FileExistsError("Found folder for {} while this ID does not "
                               "exist in the database.".format(profile_id))
 
-      print("\nAttempting to scrape {}.".format(profile_id))
-      os.mkdir(profile.path)
+    print("\nAttempting to scrape {}.".format(profile_id))
+
+    os.mkdir(profile.path)
+    try:
       self.scrape(profile)
+    except Exception as error:
+      print("Failed to scrape {} with {}.".format(profile_id, error))
+      os.rmdir(profile.path)
 
   def scrape(self, profile: profiles.ScrapableFacebookProfile):
     # Scrape profile information and photo links
@@ -89,8 +100,14 @@ class Database:
       if profile.photos[-1].next_url is None:
         break
     self.new_data.append(profile.to_dict())
-    print("{} scraped successfully with {} photos.".format(
-        profile.id, len(profile.photos)))
+    print("{} scraped successfully with {} photos.".format(profile.id, len(profile.photos)))
+
+  def save(self):
+    if self.previous_data is None:
+      total_data = pd.DataFrame(self.new_data)
+    else:
+      total_data = pd.concat([self.previous_data, self.new_data], ignore_index=True, sort=True)
+    total_data.to_pickle(os.path.join(self.path, "profiles.pkl"))
 
   def check(self):
     """Checks whether a saved database is valid."""
