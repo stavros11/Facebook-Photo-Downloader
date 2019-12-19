@@ -86,6 +86,9 @@ class Database:
       self.scrape(profile)
     except Exception as error:
       print("Failed to scrape {} with {}.".format(profile_id, error))
+      if os.listdir(profile.path):
+        raise FileExistsError("Directory of {} is not empty and database "
+                              "will be corrupted.".format(profile_id))
       os.rmdir(profile.path)
 
   def scrape(self, profile: profiles.ScrapableFacebookProfile):
@@ -106,7 +109,8 @@ class Database:
     if self.previous_data is None:
       total_data = pd.DataFrame(self.new_data)
     else:
-      total_data = pd.concat([self.previous_data, self.new_data], ignore_index=True, sort=True)
+      new_data = pd.DataFrame(self.new_data)
+      total_data = pd.concat([self.previous_data, new_data], ignore_index=True, sort=True)
     total_data.to_pickle(os.path.join(self.path, "profiles.pkl"))
 
   def check(self):

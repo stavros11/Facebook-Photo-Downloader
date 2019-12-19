@@ -1,6 +1,7 @@
 """Basic data structures for profiles and photos."""
 import inspect
 import time
+import os
 import bs4
 from downloader import facebook
 from downloader import photos
@@ -11,8 +12,8 @@ class FacebookProfile:
   """Base profile data structure."""
 
   def __init__(self,
-               profile_id: str,
-               database_path: str
+               id: str,
+               database_path: str,
                first_name: Optional[str] = None,
                last_name: Optional[str] = None,
                hometown: Optional[str] = None,
@@ -20,7 +21,7 @@ class FacebookProfile:
                profile_photo_url: Optional[str] = None,
                cover_photo_url: Optional[str] = None):
     # Required information
-    self.id = profile_id
+    self.id = id
     self.database_path = database_path
 
     # Facebook name

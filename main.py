@@ -83,7 +83,7 @@ if __name__ == "__main__":
   parser.add_argument("--end", default=None, type=int)
   parser.add_argument("--email", default=None, type=str)
   parser.add_argument("--password", default=None, type=str)
-  parser.add_argument("--sleep-time", default=2, type=int)
-  parser.add_argument("--sleep-between", default=5, type=int)
+  parser.add_argument("--sleep-time", default=1, type=int)
+  parser.add_argument("--sleep-between", default=3, type=int)
 
   main(**vars(parser.parse_args()))
